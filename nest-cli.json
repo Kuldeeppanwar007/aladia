@@ -4,7 +4,8 @@
   "monorepo": true,
   "sourceRoot": "apps",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "tsConfigPath": "./tsconfig.json"
   },
   "projects": {
     "authentication": {

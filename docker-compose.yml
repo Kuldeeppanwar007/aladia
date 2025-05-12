@@ -5,12 +5,12 @@ services:
     image: mongo:latest
     container_name: mongo_auth_service
     ports:
-      - "27017:27017" # Map host port to container port
+      - '27017:27017' # Map host port to container port
     volumes:
       - mongo_data:/data/db # Persist MongoDB data
     restart: unless-stopped
     networks:
-    - app_network
+      - app_network
 
   authentication_service:
     build:
@@ -25,7 +25,7 @@ services:
       AUTH_MICROSERVICE_HOST: '0.0.0.0' # Listen on all interfaces within Docker
       # AUTH_HTTP_PORT: 3002 # If exposing HTTP for health
     ports:
-      - "${AUTH_MICROSERVICE_PORT:-3001}:${AUTH_MICROSERVICE_PORT:-3001}" # TCP port for microservice
+      - '${AUTH_MICROSERVICE_PORT:-3001}:${AUTH_MICROSERVICE_PORT:-3001}' # TCP port for microservice
       # - "${AUTH_HTTP_PORT:-3002}:${AUTH_HTTP_PORT:-3002}" # For HTTP health check, if enabled
     depends_on:
       - mongo_db
@@ -46,7 +46,7 @@ services:
       MONGO_URI: mongodb://mongo_db:27017/nest_auth_app # Service name 'mongo_db' from docker-compose
       # GATEWAY_PORT: 3000 # Already in .env
     ports:
-      - "${GATEWAY_PORT:-3000}:${GATEWAY_PORT:-3000}" # HTTP port for the gateway
+      - '${GATEWAY_PORT:-3000}:${GATEWAY_PORT:-3000}' # HTTP port for the gateway
     depends_on:
       - authentication_service
     restart: unless-stopped

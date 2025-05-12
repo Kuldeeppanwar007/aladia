@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Catch,
   RpcExceptionFilter as NestRpcExceptionFilter,
@@ -17,7 +20,7 @@ export class RpcExceptionFilter
     const response = ctx.getResponse();
     // const request = ctx.getRequest();
 
-    let error = exception.getError();
+    const error = exception.getError();
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'An unexpected error occurred with a downstream service.';
 

@@ -9,6 +9,6 @@
       "@app/common/config": ["common/config/src"]
     }
   },
-  "include": ["src/**/*",  "../../common/**/*"],
+  "include": ["src/**/*", "../../common/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }

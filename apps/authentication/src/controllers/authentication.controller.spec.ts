@@ -28,7 +28,9 @@ describe('AuthenticationController', () => {
       ],
     }).compile();
 
-    authenticationController = app.get<AuthenticationController>( AuthenticationController );
+    authenticationController = app.get<AuthenticationController>(
+      AuthenticationController,
+    );
   });
 
   it('should be defined', () => {

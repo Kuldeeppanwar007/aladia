@@ -21,7 +21,9 @@
       "@app/common/config": ["common/config/src"],
       "@app/common/config/*": ["common/config/src/*"],
       "@app/common/core": ["common/core/src"],
-      "@app/common/core/*": ["common/core/src/*"]
+      "@app/common/core/*": ["common/core/src/*"],
+      "@app/common/*": ["common/*"],
+      "@app/*": ["apps/*"]
     }
   }
 }

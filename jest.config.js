@@ -13,7 +13,6 @@ module.exports = {
   moduleNameMapper: {
     '^@app/common/core(.*)$': '<rootDir>/common/core/src$1',
     '^@app/common/config(.*)$': '<rootDir>/common/config/src$1',
-    '^@app/common/(.*)$': '<rootDir>/common/$1',
-    '^@app/(.*)$': '<rootDir>/apps/$1',
+    '^@app/*': '<rootDir>/apps/*',
   },
 };
