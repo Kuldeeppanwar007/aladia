@@ -32,4 +32,4 @@ COPY --from=builder /usr/src/app/dist/apps/authentication ./dist/apps/authentica
 # The TCP port for microservice communication doesn't need to be EXPOSEd in Dockerfile
 # unless you are connecting to it from outside the Docker network directly.
 
-CMD ["node", "dist/apps/authentication/src/main"]
+CMD ["node", "dist/apps/authentication/main"]

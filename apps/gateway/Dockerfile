@@ -46,4 +46,4 @@ COPY --from=builder /usr/src/app/dist/apps/gateway ./dist/apps/gateway
 EXPOSE 3000
 
 # Command to run the application
-CMD ["node", "dist/apps/gateway/src/main"]
+CMD ["node", "dist/apps/gateway/main"]
