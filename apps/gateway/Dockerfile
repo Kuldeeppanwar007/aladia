@@ -21,7 +21,6 @@ COPY . .
 # Build the specific application (gateway)
 # The --tsc flag ensures it uses the TypeScript compiler directly, good for monorepos
 RUN npx nest build gateway --tsc
-
 # Stage 2: Production environment
 FROM node:18-alpine
 
@@ -40,10 +39,10 @@ COPY --from=builder /usr/src/app/dist/apps/gateway ./dist/apps/gateway
 
 # Copy common libs if they are built separately and needed at runtime
 # If common libs are bundled into the app's build, this might not be needed
-# COPY --from=builder /usr/src/app/dist/common ./dist/common
+COPY --from=builder /usr/src/app/dist/common ./dist/common
 
 # Expose the port the app runs on
 EXPOSE 3000
 
 # Command to run the application
-CMD ["node", "dist/apps/gateway/main"]
+CMD ["node", "dist/apps/gateway/src/main"]

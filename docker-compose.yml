@@ -41,6 +41,7 @@ services:
     environment:
       # Ensure the gateway can reach the authentication service using its Docker service name
       AUTH_MICROSERVICE_HOST: authentication_service # Docker DNS will resolve this
+      MONGO_URI: mongodb://mongo_db:27017/nest_auth_app # Service name 'mongo_db' from docker-compose
       # GATEWAY_PORT: 3000 # Already in .env
     ports:
       - "${GATEWAY_PORT:-3000}:${GATEWAY_PORT:-3000}" # HTTP port for the gateway

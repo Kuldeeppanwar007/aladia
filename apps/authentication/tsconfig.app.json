@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "declaration": false,
-    "outDir": "../../dist/apps/authentication",
+    "outDir": "../../dist/",
     "baseUrl": "../../",
     "paths": {
       "@app/common/core": ["common/core/src"],
