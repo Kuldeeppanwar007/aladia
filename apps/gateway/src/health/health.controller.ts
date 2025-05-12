@@ -28,7 +28,7 @@ export class HealthController {
       () =>
         this.http.pingCheck(
           'gateway-http',
-          `http://localhost:${gatewayPort}/api`,
+          `http://localhost:${gatewayPort}/api/docs`,
         ), // /api is for swagger
       // Check the health of the Authentication microservice
       () =>
