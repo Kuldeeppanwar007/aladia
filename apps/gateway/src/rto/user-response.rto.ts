@@ -1,25 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-
-export class UserResponseRto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  email: string;
-
-  @ApiProperty({ required: false })
-  name?: string;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-}
+import { UserRto as CommonUserRto } from '@app/common/core'; // Import common UserRto
 
 export class LoginResponseRto {
   @ApiProperty()
   accessToken: string;
-  @ApiProperty({ type: UserResponseRto })
-  user: UserResponseRto;
+
+  @ApiProperty({ type: CommonUserRto }) // Use the common UserRto
+  user: CommonUserRto;
 }

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AuthenticationController } from './authentication.controller';
-import { AuthenticationService } from './authentication.service';
+import { AuthenticationController } from './controllers/authentication.controller';
+import { AuthenticationService } from './services/authentication.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
-import { UserRepository } from './user.repository';
+import { UserRepository } from './repository/user.repository';
 import { ConfigModule as MyConfigModule } from '@app/common/config'; // Path to your common config
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -17,15 +17,15 @@ import { HealthController } from './health/health.controller';
     LoggingModule, // Our common logging module
     MongooseModule.forRootAsync({
       imports: [MyConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: 'mongodb://localhost:27017',
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGO_URI'),
       }),
       inject: [ConfigService],
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.registerAsync({
       imports: [MyConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: { expiresIn: configService.get<string>('JWT_EXPIRATION') },
       }),

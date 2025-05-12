@@ -4,7 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { UserResponseRto } from '../rto/user-response.rto'; // Gateway RTO
+import { LoginResponseRto } from '../rto/user-response.rto'; // Gateway RTO
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -22,10 +22,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: {
     email: string;
     sub: string;
-  }): Promise<UserResponseRto> {
+  }): Promise<LoginResponseRto> {
     // `payload.sub` contains the userId
     const user = await firstValueFrom(
-      this.authClient.send<UserResponseRto>(
+      this.authClient.send<LoginResponseRto>(
         { cmd: 'auth_validate_user' },
         { userId: payload.sub },
       ),

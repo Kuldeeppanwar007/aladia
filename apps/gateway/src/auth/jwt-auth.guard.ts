@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
   ExecutionContext,
@@ -28,6 +29,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       // console.error('JWT Guard Error:', err, 'Info:', info, 'User:', user);
       throw (
         err ||
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         new UnauthorizedException(info?.message || 'User is not authenticated')
       );
     }

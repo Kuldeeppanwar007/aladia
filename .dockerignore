@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+dist
+.DS_Store
+apps/*/test
+apps/*/tsconfig.app.json # These are used by CLI, not needed in image
+libs/*/test
+*.env
+.git

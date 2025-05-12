@@ -1,9 +1,14 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "declaration": false,
-    "outDir": "../../dist/apps/gateway"
+    "outDir": "../../dist/apps/gateway",
+    "baseUrl": "../../",
+    "paths": {
+      "@app/common/core": ["common/core/src"],
+      "@app/common/config": ["common/config/src"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*",  "../../common/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }

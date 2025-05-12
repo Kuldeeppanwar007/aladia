@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthenticationController } from './authentication.controller';
-import { AuthenticationService } from './authentication.service';
+import { AuthenticationService } from '../services/authentication.service';
 
 describe('AuthenticationController', () => {
   let authenticationController: AuthenticationController;
@@ -16,9 +16,7 @@ describe('AuthenticationController', () => {
     );
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(authenticationController.getHello()).toBe('Hello World!');
-    });
+  it('should be defined', () => {
+    expect(authenticationController).toBeDefined();
   });
 });

@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  mongo_db:
+    image: mongo:latest
+    container_name: mongo_auth_service
+    ports:
+      - "27017:27017" # Map host port to container port
+    volumes:
+      - mongo_data:/data/db # Persist MongoDB data
+    restart: unless-stopped
+
+  authentication_service:
+    build:
+      context: . # Root of the monorepo
+      dockerfile: apps/authentication/Dockerfile
+    container_name: authentication_app
+    env_file:
+      - .env.development # Load environment variables
+    environment:
+      # Override or set additional env vars if needed
+      MONGO_URI: mongodb://mongo_db:27017/nest_auth_app # Service name 'mongo_db' from docker-compose
+      AUTH_MICROSERVICE_HOST: '0.0.0.0' # Listen on all interfaces within Docker
+      # AUTH_HTTP_PORT: 3002 # If exposing HTTP for health
+    ports:
+      - "${AUTH_MICROSERVICE_PORT:-3001}:${AUTH_MICROSERVICE_PORT:-3001}" # TCP port for microservice
+      # - "${AUTH_HTTP_PORT:-3002}:${AUTH_HTTP_PORT:-3002}" # For HTTP health check, if enabled
+    depends_on:
+      - mongo_db
+    restart: unless-stopped
+    networks:
+      - app_network
+
+  gateway_service:
+    build:
+      context: .
+      dockerfile: apps/gateway/Dockerfile
+    container_name: gateway_app
+    env_file:
+      - .env.development
+    environment:
+      # Ensure the gateway can reach the authentication service using its Docker service name
+      AUTH_MICROSERVICE_HOST: authentication_service # Docker DNS will resolve this
+      # GATEWAY_PORT: 3000 # Already in .env
+    ports:
+      - "${GATEWAY_PORT:-3000}:${GATEWAY_PORT:-3000}" # HTTP port for the gateway
+    depends_on:
+      - authentication_service
+    restart: unless-stopped
+    networks:
+      - app_network
+
+volumes:
+  mongo_data: # Define the named volume
+
+networks:
+  app_network:
+    driver: bridge

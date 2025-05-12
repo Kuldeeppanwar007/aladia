@@ -3,14 +3,13 @@ import {
   ConflictException,
   NotFoundException,
   UnauthorizedException,
-  Inject,
 } from '@nestjs/common';
-import { UserRepository } from './user.repository';
-import { CreateUserInternalDto } from './dto/create-user.dto';
-import { UserRto } from './dto/user.rto';
+import { UserRepository } from '../repository/user.repository';
+import { CreateUserInternalDto } from '../dto/create-user.dto';
+import { UserRto } from '@app/common/core'; // Adjusted import
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LoginUserDto } from './dto/login-user.dto'; // We'll create this
+import { LoginUserDto } from '../dto/login-user.dto'; // We'll create this
 import { LoggerService } from '@app/common/core';
 
 @Injectable()

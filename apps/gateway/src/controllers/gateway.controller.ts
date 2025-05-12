@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Controller,
   Post,
@@ -14,7 +15,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { RegisterUserDto } from './dto/register-user.dto';
+import { RegisterUserDto } from '../dto/register-user.dto';
 import { firstValueFrom, throwError, TimeoutError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import {
@@ -23,11 +24,12 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { UserResponseRto, LoginResponseRto } from './rto/user-response.rto';
-import { LoginUserHttpDto } from './dto/login-user-http.dto';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { LoginUserHttpDto } from '../dto/login-user-http.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { LoggerService } from '@app/common/core';
 import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { UserRto as CommonUserRto } from '@app/common/core';
+import { LoginResponseRto } from '../rto/user-response.rto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -54,6 +56,7 @@ export class GatewayController {
     // Re-throw RpcException as is, or transform other errors
     if (error.status && error.message) {
       // This assumes RpcException structure
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       throw new RpcException({ status: error.status, message: error.message });
     }
     throw new RpcException({
@@ -67,14 +70,14 @@ export class GatewayController {
   @ApiResponse({
     status: 201,
     description: 'User registered successfully.',
-    type: UserResponseRto,
+    type: CommonUserRto,
   })
   @ApiResponse({ status: 400, description: 'Invalid input data.' })
   @ApiResponse({ status: 409, description: 'Email already exists.' })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async register(
     @Body() registerUserDto: RegisterUserDto,
-  ): Promise<UserResponseRto> {
+  ): Promise<CommonUserRto> {
     this.logger.log(
       `Gateway: Received registration request for ${registerUserDto.email}`,
     );
@@ -86,7 +89,7 @@ export class GatewayController {
     };
     return firstValueFrom(
       this.authClient
-        .send<UserResponseRto>({ cmd: 'auth_register' }, createUserInternalDto)
+        .send<CommonUserRto>({ cmd: 'auth_register' }, createUserInternalDto)
         .pipe(
           timeout(5000), // 5 seconds timeout
           catchError((err) => {
@@ -140,28 +143,26 @@ export class GatewayController {
   @ApiResponse({
     status: 200,
     description: 'List of all users.',
-    type: [UserResponseRto],
+    type: [CommonUserRto],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  // @UseInterceptors(CacheInterceptor) // Apply caching to this endpoint
+  @UseInterceptors(CacheInterceptor) // Apply caching to this endpoint
   @CacheKey('all_users') // Custom cache key
   @CacheTTL(30) // Override global TTL: 30 seconds for this endpoint
-  async getAllUsers(@Req() req): Promise<UserResponseRto[]> {
+  async getAllUsers(@Req() req): Promise<CommonUserRto[]> {
     this.logger.log(
       `Gateway: Received request to get all users by ${req.user?.email}`,
     );
     return firstValueFrom(
-      this.authClient
-        .send<UserResponseRto[]>({ cmd: 'auth_get_users' }, {})
-        .pipe(
-          timeout(5000),
-          catchError((err) => {
-            this.logger.error(
-              `Error from auth_get_users: ${JSON.stringify(err)}`,
-            );
-            return throwError(() => new RpcException(err));
-          }),
-        ),
+      this.authClient.send<CommonUserRto[]>({ cmd: 'auth_get_users' }, {}).pipe(
+        timeout(5000),
+        catchError((err) => {
+          this.logger.error(
+            `Error from auth_get_users: ${JSON.stringify(err)}`,
+          );
+          return throwError(() => new RpcException(err));
+        }),
+      ),
     );
   }
 
@@ -172,12 +173,13 @@ export class GatewayController {
   @ApiResponse({
     status: 200,
     description: 'Current user profile.',
-    type: UserResponseRto,
+    type: CommonUserRto,
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  getCurrentUser(@Req() req): UserResponseRto {
+  getCurrentUser(@Req() req): CommonUserRto {
     // req.user is populated by JwtAuthGuard
     this.logger.log(`Gateway: Received request for 'me' by ${req.user?.email}`);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return req.user; // The user object is already validated and attached by JwtStrategy & JwtAuthGuard
   }
 }

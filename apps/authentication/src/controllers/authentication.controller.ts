@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Controller, Inject } from '@nestjs/common';
 import {
   MessagePattern,
@@ -5,9 +6,9 @@ import {
   Ctx,
   TcpContext,
 } from '@nestjs/microservices';
-import { AuthenticationService } from './authentication.service';
-import { CreateUserInternalDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto'; // Ensure this DTO is created
+import { AuthenticationService } from '../services/authentication.service';
+import { CreateUserInternalDto } from '../dto/create-user.dto';
+import { LoginUserDto } from '../dto/login-user.dto'; // Ensure this DTO is created
 import { LoggerService } from '@app/common/core';
 
 @Controller()
@@ -78,7 +79,7 @@ export class AuthenticationController {
       return await this.authenticationService.validateUserById(data.userId);
     } catch (error) {
       this.logger.error(
-        `Error in auth_validate_user: ${error.message}`,
+        `Error in auth_validate_user: ${error?.message || error}`,
         error.stack,
       );
       throw error;

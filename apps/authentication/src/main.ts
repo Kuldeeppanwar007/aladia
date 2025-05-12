@@ -26,7 +26,7 @@ async function bootstrap() {
       logger: customLogger,
     },
   );
-  appContext.close(); // Close the context used to fetch config/logger
+  await appContext.close(); // Close the context used to fetch config/logger
 
   await app.listen();
   customLogger.log(

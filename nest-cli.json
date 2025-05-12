@@ -1,24 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/aladia/src",
-  "compilerOptions": {
-    "deleteOutDir": true,
-    "webpack": true,
-    "tsConfigPath": "apps/aladia/tsconfig.app.json"
-  },
   "monorepo": true,
-  "root": "apps/aladia",
+  "sourceRoot": "apps",
+  "compilerOptions": {
+    "deleteOutDir": true
+  },
   "projects": {
-    "aladia": {
-      "type": "application",
-      "root": "apps/aladia",
-      "entryFile": "main",
-      "sourceRoot": "apps/aladia/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/aladia/tsconfig.app.json"
-      }
-    },
     "authentication": {
       "type": "application",
       "root": "apps/authentication",
@@ -28,24 +16,6 @@
         "tsConfigPath": "apps/authentication/tsconfig.app.json"
       }
     },
-    "common/config": {
-      "type": "library",
-      "root": "common/config",
-      "entryFile": "index",
-      "sourceRoot": "common/config/src",
-      "compilerOptions": {
-        "tsConfigPath": "common/config/tsconfig.lib.json"
-      }
-    },
-    "common/core": {
-      "type": "library",
-      "root": "common/core",
-      "entryFile": "index",
-      "sourceRoot": "common/core/src",
-      "compilerOptions": {
-        "tsConfigPath": "common/core/tsconfig.lib.json"
-      }
-    },
     "gateway": {
       "type": "application",
       "root": "apps/gateway",
@@ -53,6 +23,24 @@
       "sourceRoot": "apps/gateway/src",
       "compilerOptions": {
         "tsConfigPath": "apps/gateway/tsconfig.app.json"
+      }
+    },
+    "common/config": {
+      "type": "library",
+      "root": "libs/common/config",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/config/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/config/tsconfig.lib.json"
+      }
+    },
+    "common/core": {
+      "type": "library",
+      "root": "libs/common/core",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/core/tsconfig.lib.json"
       }
     }
   }
