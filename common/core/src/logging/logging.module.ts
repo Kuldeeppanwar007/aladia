@@ -1,6 +1,6 @@
 import { Module, Global } from '@nestjs/common';
 import { LoggerService } from './logger.service';
-import { ConfigModule } from '@app/common/config'; // Adjust if your path alias is different
+import { ConfigModule } from '@app/common/config';
 
 @Global() // Make LoggerService globally available
 @Module({
