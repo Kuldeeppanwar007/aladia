@@ -113,7 +113,7 @@ Includes services for:
 
 ## 🧑‍💻 Author
 
-**Your Name**  
+**Kuldeep panwar**  
 Backend Developer | Node.js & NestJS Enthusiast  
 📧 kuldeeppanwar7697@gmail.com  
 🔗 [LinkedIn](https://www.linkedin.com/in/kuldeeppanwar007/) | [GitHub](https://github.com/Kuldeeppanwar007)
