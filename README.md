@@ -109,7 +109,7 @@ Includes services for:
 ## 📬 Submission Checklist
 
 - ✅ GitHub Repository: [GitHub Link](https://github.com/Kuldeeppanwar007/aladia)
-- ✅ Video Walkthrough: [Loom/Vidyard Link](#)
+- ✅ Video Walkthrough: [Loom/ Link](https://www.loom.com/share/cc1bd03b2d6c4bc38be528b6c57fd08e?sid=9eeb9801-8e32-4ff8-af0b-51085edc75a7)
 
 ## 🧑‍💻 Author
 
