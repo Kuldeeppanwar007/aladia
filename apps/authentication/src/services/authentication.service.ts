@@ -44,6 +44,7 @@ export class AuthenticationService {
   async getAllUsers(): Promise<UserRto[]> {
     this.logger.log('Fetching all users.');
     const users = await this.userRepository.findAll();
+    this.logger.log(`Fetched ${users.length} users.`);
     return users.map((user) => UserRto.fromEntity(user));
   }
 
@@ -77,10 +78,13 @@ export class AuthenticationService {
   }
 
   async validateUserById(userId: string): Promise<UserRto | null> {
+    this.logger.log(`Validating user by Id: ${userId}`);
     const user = await this.userRepository.findById(userId);
     if (!user) {
+      this.logger.warn(`Validation failed: User not found for Id ${userId}`);
       return null;
     }
+    this.logger.log(`User ${user.email} validated successfully.`);
     return UserRto.fromEntity(user);
   }
 }
