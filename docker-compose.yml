@@ -53,9 +53,178 @@ services:
     networks:
       - app_network
 
+  # --- ETL Pipeline Services ---
+  etl_mongo:
+    image: mongo:6.0 # Use a version that supports change streams well
+    container_name: etl_mongo_source
+    ports:
+      - "${ETL_MONGO_PORT:-27018}:27017" # Expose on a different host port
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo-init-etl.js:/docker-entrypoint-initdb.d/mongo-init-etl.js:ro # To init replica set
+    command: ["--replSet", "rs0", "--bind_ip_all"] # --oplogSize desired_oplog_size_in_mb (optional)
+    restart: unless-stopped
+    networks:
+      - etl_network
+
+  # Service to initiate replica set on etl_mongo, only needed once after first startup
+  # mongo_replicaset_setup:
+  #   image: mongo:6.0
+  #   depends_on:
+  #     - etl_mongo
+  #   restart: "no"
+  #   entrypoint: |
+  #     bash -c '
+  #       echo "Waiting for MongoDB to start..."
+  #       until mongosh --host etl_mongo --eval "printjson(db.serverStatus())"; do sleep 2; done;
+  #       echo "MongoDB started. Initiating replica set..."
+  #       mongosh --host etl_mongo --eval "rs.initiate({_id: \"rs0\", members: [{_id: 0, host: \"etl_mongo:27017\"}]})"
+  #       echo "Replica set initiated."
+  #     '
+  #   networks:
+  #     - etl_network
+
+  source_data_simulator:
+    build:
+      context: .
+      dockerfile: apps/source-data-simulator/Dockerfile # You'll need to create this
+    container_name: source_data_simulator_app
+    env_file:
+      - .env.development
+    environment:
+      - NODE_ENV=development
+      - ETL_MONGO_URI=mongodb://etl_mongo:27017/etl_source_db?replicaSet=rs0 # Connect to docker service name
+    depends_on:
+      etl_mongo: # Wait for mongo to be somewhat up, replica set init is tricky here
+        condition: service_started # Or service_healthy if you add a healthcheck
+    restart: unless-stopped
+    networks:
+      - etl_network
+    # Add a command to wait for replica set to be initiated if possible, or handle connection retries in app
+
+  cdc_producer:
+    build:
+      context: .
+      dockerfile: apps/cdc-producer/Dockerfile # You'll need to create this
+    container_name: cdc_producer_app
+    env_file:
+      - .env.development
+    environment:
+      - NODE_ENV=development
+      - ETL_MONGO_URI=mongodb://etl_mongo:27017/etl_source_db?replicaSet=rs0
+      - ETL_REDIS_HOST=etl_redis
+      - ETL_REDIS_PORT=6379 # Internal Docker port for Redis
+      - ETL_REDIS_ORDERS_STREAM_NAME=orders_cdc_stream
+    depends_on:
+      - etl_mongo
+      - etl_redis
+    restart: unless-stopped
+    networks:
+      - etl_network
+
+  etl_redis:
+    image: redis:7.0-alpine
+    container_name: etl_redis_queue
+    ports:
+      - "${ETL_REDIS_PORT:-6380}:6379" # Expose on a different host port
+    restart: unless-stopped
+    networks:
+      - etl_network
+
+  minio:
+    image: minio/minio:latest
+    container_name: etl_minio_warehouse
+    ports:
+      - "${ETL_MINIO_CONSOLE_PORT:-9001}:9001" # MinIO Console
+      - "${ETL_MINIO_API_PORT:-9000}:9000"     # MinIO API
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${ETL_MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${ETL_MINIO_SECRET_KEY:-minioadmin}
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    networks:
+      - etl_network
+
+  spark_master: # Using Bitnami Spark image for easier setup
+    image: bitnami/spark:3.5
+    container_name: etl_spark_master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080" # Spark Master UI
+      - "7077:7077" # Spark Master RPC
+    networks:
+      - etl_network
+    volumes:
+      - ./spark-apps:/opt/bitnami/spark/apps # Mount your spark apps
+      # You might need to mount a shared directory for checkpointing if not using S3 for it
+
+  spark_worker:
+    image: bitnami/spark:3.5
+    container_name: etl_spark_worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark_master:7077 # Connect to master using service name
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports: # Worker UI port (optional, can be many workers)
+      - "8081:8081"
+    depends_on:
+      - spark_master
+    networks:
+      - etl_network
+    volumes:
+      - ./spark-apps:/opt/bitnami/spark/apps # Mount your spark apps
+
+  # Optional: Spark Submit service to run the job
+  # Or you can exec into spark_master/worker and run spark-submit
+  spark_submit_job:
+    image: bitnami/spark:3.5 # Use the same image as master/worker
+    container_name: etl_spark_submit
+    environment:
+      - SPARK_MODE=driver # Not strictly a mode, but indicates it's submitting
+      - SPARK_MASTER_URL=spark://spark_master:7077
+      - ETL_REDIS_HOST=etl_redis
+      - ETL_REDIS_PORT=6379
+      - ETL_REDIS_ORDERS_STREAM_NAME=orders_cdc_stream
+      - ETL_MINIO_ENDPOINT=http://minio:9000 # Use service name for MinIO
+      - ETL_MINIO_ACCESS_KEY=${ETL_MINIO_ACCESS_KEY:-minioadmin}
+      - ETL_MINIO_SECRET_KEY=${ETL_MINIO_SECRET_KEY:-minioadmin}
+      - ETL_MINIO_BUCKET_NAME=${ETL_MINIO_BUCKET_NAME:-etl-warehouse}
+    command: >
+      /opt/bitnami/spark/bin/spark-submit
+      --master spark://spark_master:7077
+      --packages com.redislabs:spark-redis_2.12:3.3.0,org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.388
+      /opt/bitnami/spark/apps/etl-pipeline/process_stream.py
+    depends_on:
+      - spark_master
+      - spark_worker
+      - etl_redis
+      - minio
+      # - cdc_producer # Ensure data is flowing before spark starts
+    networks:
+      - etl_network
+    volumes:
+      - ./spark-apps:/opt/bitnami/spark/apps
+
 volumes:
+  # mongo_auth_data: # For existing auth DB
   mongo_data: # Define the named volume
+  minio_data:
 
 networks:
+  # app_network: # For existing services
+  etl_network:
+    driver: bridge
   app_network:
     driver: bridge

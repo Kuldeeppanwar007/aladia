@@ -18,12 +18,12 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@app/*": ["apps/*"],
+      "@app/common/*": ["common/*"],
       "@app/common/config": ["common/config/src"],
       "@app/common/config/*": ["common/config/src/*"],
       "@app/common/core": ["common/core/src"],
-      "@app/common/core/*": ["common/core/src/*"],
-      "@app/common/*": ["common/*"],
-      "@app/*": ["apps/*"]
+      "@app/common/core/*": ["common/core/src/*"]
     }
   }
 }

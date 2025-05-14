@@ -1,0 +1,6 @@
+pyspark==3.5.0 # Or your Spark version
+redis==4.6.0   # For redis-py, though Spark uses a different connector for streams typically
+# For Spark to connect to Redis Streams, you'll often use a connector JAR.
+# For S3 (MinIO)
+hadoop-aws==3.3.4 # Aligned with Spark's Hadoop version
+aws-java-sdk-bundle==1.12.388 #

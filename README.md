@@ -35,6 +35,7 @@ These are RESTful endpoints exposed to the client:
 Registers a new user.
 
 - **Body:**
+
 ```json
 {
   "username": "john_doe",
@@ -81,21 +82,22 @@ docker-compose up --build
 ```
 
 Includes services for:
+
 - Gateway
 - Authentication
 - MongoDB
 
 ## ✅ Requirements Checklist
 
-| Area            | Implemented |
-|-----------------|-------------|
-| Monorepo Structure | ✅ |
-| Modular MVC      | ✅ |
-| DTOs & Validation| ✅ |
-| MongoDB Integration | ✅ |
-| TCP Microservice Communication | ✅ |
-| Swagger Docs     | ✅ |
-| Dockerized Setup | ✅ |
+| Area                           | Implemented |
+| ------------------------------ | ----------- |
+| Monorepo Structure             | ✅          |
+| Modular MVC                    | ✅          |
+| DTOs & Validation              | ✅          |
+| MongoDB Integration            | ✅          |
+| TCP Microservice Communication | ✅          |
+| Swagger Docs                   | ✅          |
+| Dockerized Setup               | ✅          |
 
 ## 🧩 Bonus Features (Optional)
 
@@ -104,7 +106,6 @@ Includes services for:
 - [✅] Health Checks
 - [✅] Rate Limiting
 - [✅] Test Coverage
-
 
 ## 📬 Submission Checklist
 
@@ -117,5 +118,3 @@ Includes services for:
 Backend Developer | Node.js & NestJS Enthusiast  
 📧 kuldeeppanwar7697@gmail.com  
 🔗 [LinkedIn](https://www.linkedin.com/in/kuldeeppanwar007/) | [GitHub](https://github.com/Kuldeeppanwar007)
-
-

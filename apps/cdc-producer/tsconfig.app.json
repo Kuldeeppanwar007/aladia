@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "declaration": false,
+    "outDir": "../../dist/",
+    "baseUrl": "../../",
+    "paths": {
+      "@app/common/core": ["common/core/src"],
+      "@app/common/config": ["common/config/src"]
+    }
+  },
+  "include": ["src/**/*", "../../common/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}

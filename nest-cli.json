@@ -17,13 +17,13 @@
         "tsConfigPath": "apps/authentication/tsconfig.app.json"
       }
     },
-    "gateway": {
+    "cdc-producer": {
       "type": "application",
-      "root": "apps/gateway",
+      "root": "apps/cdc-producer",
       "entryFile": "main",
-      "sourceRoot": "apps/gateway/src",
+      "sourceRoot": "apps/cdc-producer/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/gateway/tsconfig.app.json"
+        "tsConfigPath": "apps/cdc-producer/tsconfig.app.json"
       }
     },
     "common/config": {
@@ -42,6 +42,24 @@
       "sourceRoot": "libs/common/core/src",
       "compilerOptions": {
         "tsConfigPath": "libs/common/core/tsconfig.lib.json"
+      }
+    },
+    "gateway": {
+      "type": "application",
+      "root": "apps/gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gateway/tsconfig.app.json"
+      }
+    },
+    "source-data-simulator": {
+      "type": "application",
+      "root": "apps/source-data-simulator",
+      "entryFile": "main",
+      "sourceRoot": "apps/source-data-simulator/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/source-data-simulator/tsconfig.app.json"
       }
     }
   }

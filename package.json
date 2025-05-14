@@ -12,8 +12,12 @@
     "start:dev": "nest start --watch",
     "start:dev:auth": "nest start authentication --watch",
     "start:dev:gateway": "nest start gateway --watch",
+    "start:dev:data": "nest start source-data-simulator --watch",
+    "start:dev:cdc": "nest start cdc-producer --watch",
     "start:prod:auth": "node dist/apps/authentication/src/main",
     "start:prod:gateway": "node dist/apps/gateway/src/main",
+    "start:prod:data": "node dist/apps/source-data-simulator/src/main",
+    "start:prod:cdc": "node dist/apps/cdc-producer/src/main",
     "lint": "eslint \"{apps,libs}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -38,12 +42,14 @@
     "cache-manager": "^6.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "ioredis": "^5.6.1",
     "mongoose": "^8.14.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
