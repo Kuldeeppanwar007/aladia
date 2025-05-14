@@ -43,7 +43,10 @@ export class OrdersCdcService implements OnModuleInit, OnApplicationShutdown {
     @InjectConnection() private readonly mongooseConnection: MongooseConnection,
     private readonly configService: ConfigService,
   ) {
-    this.redisClient = new Redis();
+    this.redisClient = new Redis({
+        host: this.configService.get<string>('ETL_REDIS_HOST'),
+        port: this.configService.get<number>('ETL_REDIS_PORT'),
+    });
     this.redisStreamName = this.configService.get<string>('ETL_REDIS_ORDERS_STREAM_NAME', 'orders_cdc_stream');
     this.logger.log(`Redis client configured for ${this.configService.get<string>('ETL_REDIS_HOST')}:${this.configService.get<number>('ETL_REDIS_PORT')}`);
   }

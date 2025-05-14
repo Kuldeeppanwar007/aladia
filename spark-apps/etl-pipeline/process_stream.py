@@ -75,12 +75,12 @@ def main():
         .format("redis") \
         .option("stream.keys", REDIS_STREAM_NAME) \
         .option("stream.read.batch.size", "100") \
-        .option("stream.read.block", "500") # ms to wait for new data
+        .option("stream.read.block", "500") \
         .option("host", REDIS_HOST) \
         .option("port", REDIS_PORT) \
         .option("stream.group.name", REDIS_STREAM_GROUP_NAME) \
         .option("stream.consumer.name", REDIS_STREAM_CONSUMER_NAME) \
-        .option("stream.consumer.ack.policy", "MANUAL") # Important for reliability
+        .option("stream.consumer.ack.policy", "MANUAL") \
         .schema(StructType([StructField("event_data", StringType())])) \
         .load()
 
