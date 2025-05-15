@@ -43,18 +43,18 @@ This project is a modular **NestJS Monorepo** showcasing a **REST API Gateway**,
                                   (ETL Starts Here ↓)
 
     ┌──────────────┐   CDC   ┌──────────────────────┐   Stream   ┌─────────────────┐
-    │ MongoDB      ├────────▶│ cdc-producer (NestJS)├───────────▶│ Redis Streams   │
+    │ MongoDB      ├────────▶│ cdc-producer (NestJS)├───────────▶│ Redis Streams  │
     └──────────────┘         └──────────────────────┘            └─────────────────┘
-                                                                     ▲
+                                    Producer                         ▲
                                                                      │
                                                                      ▼ streaming
                                                          ┌────────────────────┐
-                                                         │ Spark ETL Pipeline │
+                                                         │ Spark ETL Pipeline │ Consumer
                                                          └────────────────────┘
                                                                      │
                                                                      ▼
                                                             ┌────────────────┐
-                                                            │   MinIO Lake   │
+                                                            │   MinIO Lake   │ DataLake
                                                             └────────────────┘
 ```                                                        [compitable to snowflake/bigquery]
 
@@ -154,7 +154,7 @@ This will spin up:
 
 - MongoDB - single node replica set
 - Redis - singgle node redis streams
-- MinIO - object storage to simulate data lake
+- MinIO - object storage to simulate data lake -> open the url localhost:9001 login with id->minioadmin & pass-> minioadmin and create a bucket with name -> etl-warehouse
 - Gateway - REST API Gateway
 - Auth microservice - Authentication microservice
 - CDC producer - Listens to MongoDB change streams

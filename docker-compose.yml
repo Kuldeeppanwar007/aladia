@@ -152,6 +152,7 @@ services:
     environment:
       MINIO_ROOT_USER: ${ETL_MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${ETL_MINIO_SECRET_KEY:-minioadmin}
+      MINIO_DEFAULT_BUCKETS: ${ETL_MINIO_BUCKET_NAME:-etl-warehouse} # Create default bucket
     command: server /data --console-address ":9001"
     restart: unless-stopped
     networks:
