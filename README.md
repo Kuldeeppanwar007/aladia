@@ -1,40 +1,89 @@
-# 🚀 NestJS Monorepo Backend (Gateway + Authentication Microservice)
+# 🚀 Fullstack Backend Platform — NestJS Microservices + Real-Time ETL Pipeline
 
-This project demonstrates a **modular NestJS monorepo architecture** implementing a **REST API Gateway** and an **Authentication microservice**. It showcases internal microservice communication using **TCP transport**, while following **MVC structure**, and leveraging **NestJS best practices** like **DTOs**, **validation**, **Swagger**, **Docker**, and more.
+This project is a modular **NestJS Monorepo** showcasing a **REST API Gateway**, **Authentication Microservice**, and a **real-time ETL pipeline** using MongoDB, Redis Streams, Apache Spark, and MinIO. It demonstrates microservice communication, scalable architecture, event-driven design, and real-world backend infrastructure.
+
+---
+
+## 📦 Key Features
+
+### ✅ NestJS Monorepo Architecture
+- **Gateway** with public-facing REST API
+- **Authentication microservice** with TCP transport
+- **Modular folder structure** using shared `common/`, `core/`, and `config/`
+- **MongoDB** for user persistence
+- **Swagger API docs**
+- **Dockerized setup** for all services
+
+### ✅ Real-Time ETL Data Pipeline
+- **MongoDB Change Streams** to detect inserts/updates in cdc-producer
+- **Redis Streams** for buffering change events in cdc-producer
+- **Apache Spark** job for transformation by using PySpark
+- **MinIO** for storing cleaned Parquet data
+
+---
+
+## 🧠 System Architecture Overview
+
+```text
+                               ┌────────────────────────┐
+                               │     NestJS Gateway     │◄────┐
+                               └────────────────────────┘     │
+                                         ▲                    │
+                                         │ TCP                │ REST APIs
+                                         ▼                    │
+                          ┌────────────────────────────┐      │
+                          │ Authentication Microservice│      │
+                          └────────────────────────────┘      │
+                                         │                    │
+                          ┌──────────────┴──────────────┐     │
+                          ▼                             ▼     ▼
+                 [MongoDB: users, orders_source]    [Swagger Docs]
+    [by using source data simulator micro-service]
+                 
+                                  (ETL Starts Here ↓)
+
+    ┌──────────────┐   CDC   ┌──────────────────────┐   Stream   ┌─────────────────┐
+    │ MongoDB      ├────────▶│ cdc-producer (NestJS)├───────────▶│ Redis Streams   │
+    └──────────────┘         └──────────────────────┘            └─────────────────┘
+                                                                     ▲
+                                                                     │
+                                                                     ▼ streaming
+                                                         ┌────────────────────┐
+                                                         │ Spark ETL Pipeline │
+                                                         └────────────────────┘
+                                                                     │
+                                                                     ▼
+                                                            ┌────────────────┐
+                                                            │   MinIO Lake   │
+                                                            └────────────────┘
+```                                                        [compitable to snowflake/bigquery]
+
+---
 
 ## 📁 Project Structure
 
 ```
 nestjs-monorepo/
 ├── apps/
-│   ├── gateway/           # Public-facing REST API
-│   └── authentication/    # Microservice for user management
-├── common/                # Shared modules, DTOs, interfaces
-├── core/                  # Core utilities, logger, exceptions
-├── config/                # Environment and configuration files
-├── node_modules/
-├── package.json
-└── tsconfig.base.json
+│   ├── gateway/                  # Public REST API
+│   ├── authentication/          # Microservice for user management
+│   ├── source-data-simulator/   # Simulates insert/update events in MongoDB
+│   ├── cdc-producer/            # Listens to MongoDB change streams → Redis
+├── spark-apps/
+│   └── etl-pipeline/            # Spark job to read Redis → Parquet (MinIO)
+├── common/                      # Shared DTOs, interfaces
+├── core/                        # Logger, exceptions, etc.
+├── config/                      # Config loading, .env variables
+├── docker-compose.yml
+└── .env.example
 ```
 
-## ⚙️ Technologies & Tools
+---
 
-- **NestJS** Monorepo
-- **TCP-based Microservices**
-- **MongoDB** (via Mongoose)
-- **Swagger** API Docs
-- **Docker** & Docker Compose
-- **class-validator**, **DTOs**
-
-## 🌐 Gateway Endpoints (apps/gateway)
-
-These are RESTful endpoints exposed to the client:
+## 🌐 Gateway API Endpoints
 
 ### POST `/auth/register`
-
 Registers a new user.
-
-- **Body:**
 
 ```json
 {
@@ -45,72 +94,142 @@ Registers a new user.
 ```
 
 ### GET `/auth/users`
+Fetches all registered users.
 
-Returns a list of all registered users.
+---
 
-## 🧠 Authentication Microservice (apps/authentication)
+## 🧠 Authentication Microservice
 
-Handles the following business logic:
+- TCP-based microservice
+- Handles:
+  - User creation
+  - Password hashing
+  - User fetching
+- MongoDB persistence via Mongoose
 
-- User creation and validation
-- Fetching all users
-- Persistence to MongoDB
-- TCP communication via NestJS microservices
+---
 
-## 🔌 Microservices Communication
+## 🔄 Real-Time ETL Flow
 
-- **Gateway ⇄ Authentication** via **TCP transport**
-- Implemented with `@nestjs/microservices`
-- Uses a **NetworkingService** for abstracting request/response messaging
+### 1️⃣ `source-data-simulator`
+- Simulates MongoDB inserts and updates on `orders_source` collection
 
-## 🧪 Validation
+### 2️⃣ `cdc-producer`
+- Connects to MongoDB change streams
+- Sends events to Redis Stream `orders_cdc_stream`
 
-- Input validation using `class-validator`
-- DTOs define schema for all incoming and outgoing requests
+### 3️⃣ Redis Streams
+- Stores raw CDC (Change Data Capture) events
 
-## 📚 Swagger API Documentation
+### 4️⃣ Apache Spark (PySpark)
+- Reads from Redis Stream in batch
+- Transforms and saves cleaned data to MinIO as Parquet
 
-- Automatically generated using `@nestjs/swagger`
-- Visit: `http://localhost:3000/api`
+### 5️⃣ MinIO
+- S3-compatible object store
+- Stores historical ETL data
 
-## 🐳 Docker Support
+---
 
-Spin up the entire system with one command:
+## ⚙️ Tech Stack
+
+- **NestJS Monorepo**
+- **MongoDB** with Mongoose
+- **Redis Streams** (Pub/Sub style CDC buffer)
+- **Apache Spark (PySpark)**
+- **MinIO** as data lake
+- **Swagger** API Docs
+- **Docker & Docker Compose**
+- **class-validator**, DTOs, centralized logger
+
+---
+
+## 🐳 Docker Usage
 
 ```bash
 docker-compose up --build
 ```
 
-Includes services for:
+This will spin up:
 
-- Gateway
-- Authentication
-- MongoDB
+- MongoDB - single node replica set
+- Redis - singgle node redis streams
+- MinIO - object storage to simulate data lake
+- Gateway - REST API Gateway
+- Auth microservice - Authentication microservice
+- CDC producer - Listens to MongoDB change streams
+- Data simulator - Simulates MongoDB insert/update events
+- ETL Spark Master - Apache Spark master node
+- ETL Spark Worker - Apache Spark worker node
+- ETL Spark Job Submit - Submits PySpark job to Spark Master
 
-## ✅ Requirements Checklist
+---
 
-| Area                           | Implemented |
-| ------------------------------ | ----------- |
-| Monorepo Structure             | ✅          |
-| Modular MVC                    | ✅          |
-| DTOs & Validation              | ✅          |
-| MongoDB Integration            | ✅          |
-| TCP Microservice Communication | ✅          |
-| Swagger Docs                   | ✅          |
-| Dockerized Setup               | ✅          |
+## 📚 Swagger API Docs
 
-## 🧩 Bonus Features (Optional)
+- Auto-generated with `@nestjs/swagger`
+- URL: [http://localhost:3000/api](http://localhost:3000/api)
 
-- [✅] JWT Login Flow
-- [✅] Centralized Logger in `core/`
-- [✅] Health Checks
-- [✅] Rate Limiting
-- [✅] Test Coverage
+---
+
+## 🧪 Validation & DTOs
+
+- Input validation using `class-validator`
+- DTOs define all schema contracts
+- Validations occur at the controller level
+
+---
+
+## 🔐 Bonus Features
+
+- ✅ JWT login flow (optional)
+- ✅ Centralized logger (in `core/logger`)
+- ✅ Health check endpoints
+- ✅ Rate limiting middleware
+- ✅ Spark batch orchestration
+
+---
+
+## 📄 Environment Variables
+
+Create a `.env.development` file:
+
+```env
+# MongoDB
+MONGO_URI=mongodb://mongo:27017/etl-db
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+ORDERS_STREAM_NAME=orders_cdc_stream
+
+# MinIO
+MINIO_ENDPOINT=http://minio:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=orders-data
+```
+
+---
+
+## ✅ Project Checklist
+
+| Area                              | Done |
+|-----------------------------------|------|
+| NestJS Monorepo Structure         | ✅   |
+| TCP Microservices                 | ✅   |
+| MongoDB + Redis + MinIO           | ✅   |
+| Swagger Documentation             | ✅   |
+| Dockerized Deployment             | ✅   |
+| PySpark ETL to MinIO              | ✅   |
+| JWT Auth (optional)               | ✅   |
+| Logger, Rate Limiting, Health     | ✅   |
+
+---
 
 ## 📬 Submission Checklist
 
 - ✅ GitHub Repository: [GitHub Link](https://github.com/Kuldeeppanwar007/aladia)
-- ✅ Video Walkthrough: [Loom/ Link](https://www.loom.com/share/cc1bd03b2d6c4bc38be528b6c57fd08e?sid=9eeb9801-8e32-4ff8-af0b-51085edc75a7)
 
 ## 🧑‍💻 Author
 
