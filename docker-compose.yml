@@ -8,9 +8,16 @@ services:
       - '27017:27017' # Map host port to container port
     volumes:
       - mongo_data:/data/db # Persist MongoDB data
-      - ./mongo-init-etl.js:/docker-entrypoint-initdb.d/mongo-init-etl.js:ro # To init replica set
-    command: ["--replSet", "rs0", "--bind_ip_all"] # --oplogSize desired_oplog_size_in_mb (optional)
+      # - ./mongo-init-etl.js:/docker-entrypoint-initdb.d/mongo-init-etl.js:ro # To init replica set
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"] # --oplogSize desired_oplog_size_in_mb (optional)
     restart: unless-stopped
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo_db:27017'}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
     networks:
       - app_network
       - etl_network
